@@ -7,14 +7,17 @@ from numpy import full
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.metrics import pairwise_distances
 
-# Pake DFS!
 
 class DBSCAN(BaseEstimator, ClusterMixin):
     OUTLIER = 0
     CORE_POINT = 1
     BORDER_POINT = 2
 
-    def __init__(self, eps=0.1, min_samples=5, metric='euclidean', metric_params=None):
+    def __init__(self,
+                 eps=0.1,
+                 min_samples=5,
+                 metric='euclidean',
+                 metric_params=None):
         self.eps = eps
         self.min_samples = min_samples
         self.metric = metric
@@ -23,7 +26,8 @@ class DBSCAN(BaseEstimator, ClusterMixin):
     def _discover(self, distances):
         return [i for i, dist in enumerate(distances) if dist <= self.eps]
 
-    def _dfs(self, distance_m, status_list, node_ids_to_visit, member_list, member_id):
+    def _dfs(self, distance_m, status_list, node_ids_to_visit, member_list,
+             member_id):
         while node_ids_to_visit:
             node_id = node_ids_to_visit.pop()
 
@@ -59,8 +63,8 @@ class DBSCAN(BaseEstimator, ClusterMixin):
 
         nodes_size = distance_m.shape[0]
 
-        member_list = full((nodes_size,), -1)
-        status_list = full((nodes_size,), self.OUTLIER)
+        member_list = full((nodes_size, ), -1)
+        status_list = full((nodes_size, ), self.OUTLIER)
 
         new_member_id = 0
 
@@ -76,7 +80,8 @@ class DBSCAN(BaseEstimator, ClusterMixin):
                     # Increment new member id
                     new_member_id = member_id + 1
 
-                    self._dfs(distance_m, status_list, adjacent_node_ids, member_list, member_id)
+                    self._dfs(distance_m, status_list, adjacent_node_ids,
+                              member_list, member_id)
 
         self.labels_ = member_list
         self.status_ = status_list
