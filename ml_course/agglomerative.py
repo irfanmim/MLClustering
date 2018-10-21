@@ -31,7 +31,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
         # Loop until desired number of clusters
         for i in range(len(self.clusters) - self.n_clusters):
             self._join_cluster()
-            self._update_dist_mat
+            self._update_dist_mat()
 
         for i in range(len(self.clusters)):
             for j in range(len(self.clusters[i])):
@@ -44,7 +44,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
         min = 999
         for i in range(0, len(self.dist_mat)):
             for j in range(i, len(self.dist_mat[i])):
-                if min > 0 and min > self.dist_mat[i][j]:
+                if self.dist_mat[i][j] > 0 and min > self.dist_mat[i][j] and i != j:
                     min = self.dist_mat[i][j]
                     idxmin = [i, j]
 
@@ -68,7 +68,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
         last = self.agglomerative_step[-1]
         updated_cluster = last[0]
         new_dist = []
-        for x in range(self.dist_mat.shape[0]-1):
+        for x in range(0, self.dist_mat.shape[0]):
             dist = self._calc_distance(self.data[updated_cluster], self.data[x])
             new_dist.append(dist)
         self.dist_mat[updated_cluster] = new_dist
@@ -81,7 +81,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
             min = -1
             for i in clust_one:
                 for j in clust_two:
-                    dist = np.linalg.norm(clust_one[i] - clust_two[j])
+                    dist = np.linalg.norm(i - j)
                     if min == -1 or dist < min:
                         min = dist
             return min
@@ -90,7 +90,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
             max = -1
             for i in clust_one:
                 for j in clust_two:
-                    dist = np.linalg.norm(clust_one[i] - clust_two[j])
+                    dist = np.linalg.norm(i - j)
                     if max == -1 or dist > max:
                         max = dist
             return max  
@@ -98,12 +98,12 @@ class Agglomerative(BaseEstimator, ClusterMixin):
         elif linkage == "average_group" :
             sum = 0
             for i in clust_one:
-                sum += clust_one[i]
+                sum += i[0]
             avg_one = float(sum) / float(len(clust_one))
 
             sum = 0
             for i in clust_two:
-                sum += clust_two[i]
+                sum += i[0]
             avg_two = float(sum) / float(len(clust_two))
             dist = np.linalg.norm(avg_one - avg_two)
             return dist
@@ -112,7 +112,7 @@ class Agglomerative(BaseEstimator, ClusterMixin):
             sum = 0
             for i in clust_one:
                 for j in clust_two:
-                    sum += np.linalg.norm(clust_one[i] - clust_two[j])
+                    sum += np.linalg.norm(i - j)
             divisor = len(clust_one) * len(clust_two)
             dist = float(sum) / float(divisor)
             return dist
