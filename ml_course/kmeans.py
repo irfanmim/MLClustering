@@ -40,7 +40,6 @@ class KMEANS(BaseEstimator, ClusterMixin):
                 for featureset in data:
                     distances = [np.linalg.norm(featureset-self.centroids[centroid]) for centroid in self.centroids]
                     classification = distances.index(min(distances))
-                    # print(classification)
                     self.classifications[classification].append(featureset)
 
                 prev_centroids = dict(self.centroids)
@@ -62,18 +61,9 @@ class KMEANS(BaseEstimator, ClusterMixin):
 
         count = 0
         for dat in data:
-            # print(self._predict1(dat))
             self.label.append(dat)
             self.label[count] = self._predict1(dat)
             count = count + 1
-
-        print()
-        print("centroids")
-        print(self.centroids)
-
-        print()
-        print("label")
-        print(self.label)
 
 
         self.labels_ = self.label

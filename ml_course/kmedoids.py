@@ -37,71 +37,49 @@ class KMEDOIDS(BaseEstimator, ClusterMixin):
         newCentroid = np.copy(self.centroids)
 
 
-
         for i in range(self.max_iteration):
             self.classifications = {}
 
             for i in range(self.k):
                 self.classifications[i] = []
 
+            total = 0
             for featureset in data:
                 distances = [np.sum(np.abs(featureset-self.centroids[centroid]), axis=-1) for centroid in self.centroids]
                 classification = distances.index(min(distances))
+                total = total + np.sum(distances)
                 self.classifications[classification].append(featureset)
+            
+            prev_total = total
 
             prev_centroids = dict(self.centroids)
 
-
-            # print()
-            # print("prev_centroid")
-            # print(prev_centroids)
-
-            # harusnya cuman ganti sentroid 1 kali dan itu dijadiin random
             intRandom = random.randint(0, self.k-1)
-            self.centroids[intRandom] = np.average(self.classifications[intRandom],axis=0)
+            self.centroids[intRandom] = data[random.randint(0,m-1)]
 
-            # print(intRandom)
-            # print()
-            # print("next_centroid")
-            # print(self.centroids)
+            total = 0
+            for featureset in data:
+                distances = [np.sum(np.abs(featureset-self.centroids[centroid]), axis=-1) for centroid in self.centroids]
+                classification = distances.index(min(distances))
+                total = total + np.sum(distances)
+                self.classifications[classification].append(featureset)
 
-            # cek errornya 
+            current_total = total
 
-
-            # cek anggotanya sama atau engga
-
-
-            # cek tolerance
-
-            optimized = True
-
-            for c in self.centroids:
-                original_centroid = prev_centroids[c]
-                current_centroid = self.centroids[c]
-                if np.sum((current_centroid-original_centroid)/original_centroid*100.0) > self.tolerance:
-                    optimized = optimized and False
-
-            if optimized:
-                break
-
+            optimized = False
+            index = 0
+            if (current_total > prev_total):
+                self.centroids = prev_centroids
+                if (current_total-prev_total<self.tolerance):
+                    index = i
+                    optimized = True
+                    break
 
         count = 0
         for dat in data:
             self.label.append(dat)
             self.label[count] = self._predict1(dat)
             count = count + 1
-
-        # print()
-        # print("centroids")
-        # print(self.centroids)
-
-        print()
-        print("label")
-        print(self.label)
-
-        print()
-        print("optimized")
-        print(optimized)
 
 
         self.labels_ = self.label
